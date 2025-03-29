@@ -2,6 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export function AuthNav() {
   const { data: session, status } = useSession();
@@ -16,30 +17,29 @@ export function AuthNav() {
     return (
       <div className="flex items-center gap-4">
         <span className="text-sm font-medium">{session.user?.email}</span>
-        <button
+        <Button 
+          variant="default" 
+          size="sm" 
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-500"
         >
           Sign out
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
     <div className="flex items-center gap-4">
-      <Link
-        href="/auth/signin"
-        className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-      >
-        Sign in
-      </Link>
-      <Link
-        href="/auth/signup"
-        className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-500"
-      >
-        Sign up
-      </Link>
+      <Button variant="ghost" size="sm" asChild>
+        <Link href="/auth/signin">
+          Sign in
+        </Link>
+      </Button>
+      <Button variant="default" size="sm" asChild>
+        <Link href="/auth/signup">
+          Sign up
+        </Link>
+      </Button>
     </div>
   );
 } 
