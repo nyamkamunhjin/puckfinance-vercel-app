@@ -58,7 +58,7 @@ export default function TradeAccountsPage() {
       <div className="min-h-screen bg-background flex flex-col">
         <AppHeader />
         
-        <main className="flex-1 container py-6">
+        <main className="flex-1 w-full max-w-[2000px] mx-auto px-4 md:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold tracking-tight">Trade Accounts</h1>
             <Button asChild>

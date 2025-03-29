@@ -1,100 +1,256 @@
-import Image from "next/image";
-import { AuthNav } from "@/components/auth-nav";
+"use client";
+
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Link from "next/link";
+import { AppHeader } from "@/components/app-header";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Some mock data for dashboard stats
+const stats = [
+  { 
+    title: "Total Balance", 
+    value: "$12,345.67", 
+    change: "+5.23%", 
+    isPositive: true 
+  },
+  { 
+    title: "Active Trades", 
+    value: "7", 
+    change: "+2", 
+    isPositive: true 
+  },
+  { 
+    title: "Last 7 Days P&L", 
+    value: "$432.10", 
+    change: "-1.45%", 
+    isPositive: false 
+  },
+  { 
+    title: "Connected Exchanges", 
+    value: "2", 
+    change: "", 
+    isPositive: true 
+  }
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[60px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <header className="row-start-1 w-full flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold">PuckFinance</Link>
-        <AuthNav />
-      </header>
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <Link
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="/dashboard"
-          >
-            Go to Dashboard
-          </Link>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // If not authenticated and not loading, show the marketing home page
+  if (status !== "loading" && !session) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <AppHeader />
+        
+        <main className="flex-1 w-full max-w-[2000px] mx-auto px-4 md:px-6 lg:px-8 py-12">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-6">
+              <span className="bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
+                PuckFinance
+              </span>{" "}
+              - Smart Trading Made Simple
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8">
+              Connect your exchange accounts, monitor your portfolio, and optimize your trading strategy in one place.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button asChild size="lg">
+                <Link href="/auth/signin">Get Started</Link>
+              </Button>
+              <Button variant="outline" size="lg" asChild>
+                <Link href="/auth/signup">Sign Up</Link>
+              </Button>
+            </div>
+
+            <div className="mt-24 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Exchange Integration</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Connect securely to popular exchanges including Binance, ByBit, and OKEx.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Portfolio Tracking</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Monitor your assets, track performance, and analyze your trading history.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Secure & Private</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Your API keys are encrypted and your data is never shared with third parties.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // If authenticated, show the dashboard
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <AppHeader />
+      
+      <main className="flex-1 w-full max-w-[2000px] mx-auto px-4 md:px-6 lg:px-8 py-6">
+        <h1 className="text-3xl font-bold tracking-tight mb-6">Dashboard</h1>
+        
+        <div className="grid gap-6">
+          {/* Welcome card */}
+          <Card className="col-span-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-none shadow-md">
+            <CardHeader>
+              <div className="flex items-center gap-4">
+                <Avatar className="h-12 w-12 border-2 border-primary">
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {session?.user?.email?.charAt(0).toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <CardTitle className="text-2xl">Welcome, {session?.user?.email || 'User'}</CardTitle>
+                  <CardDescription>Here's an overview of your trading activity</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
+          
+          {/* Stats grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {status === "loading" ? (
+              // Show skeletons while loading
+              Array(4).fill(0).map((_, i) => (
+                <Card key={i} className="overflow-hidden">
+                  <CardHeader className="pb-2">
+                    <Skeleton className="h-4 w-24" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-8 w-20 mb-2" />
+                    <Skeleton className="h-4 w-16" />
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              // Show actual stats
+              stats.map((stat, index) => (
+                <Card key={index}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      {stat.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{stat.value}</div>
+                    {stat.change && (
+                      <p className={`text-xs ${stat.isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                        {stat.change} {stat.isPositive ? '↑' : '↓'}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+
+          {/* Quick action cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Trade Accounts Card */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  Trade Accounts
+                  <span className="text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </CardTitle>
+                <CardDescription>Manage your exchange API keys</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Connect to exchanges and manage your trading accounts all in one place.
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href="/trade-accounts">
+                    Manage Accounts
+                  </Link>
+                </Button>
+              </CardFooter>
+            </Card>
+
+            {/* Trading Activity Card */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  Trading Activity
+                  <span className="text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3m0 0l3 3m-3-3v12m6-9l3 3m0 0l3-3m-3 3V6" />
+                    </svg>
+                  </span>
+                </CardTitle>
+                <CardDescription>View your recent trading activity</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Track your trade history, performance metrics, and open positions.
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full" disabled>
+                  Coming Soon
+                </Button>
+              </CardFooter>
+            </Card>
+
+            {/* Settings Card */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  Settings
+                  <span className="text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </span>
+                </CardTitle>
+                <CardDescription>Configure your account settings</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Customize your profile, notification preferences, and account security.
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full" disabled>
+                  Coming Soon
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
