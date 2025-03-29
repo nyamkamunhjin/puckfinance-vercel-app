@@ -55,13 +55,17 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="fixed inset-0 -z-10 bg-blockchain-glow overflow-hidden">
-        <div className="absolute inset-0 bg-grid-slate-900/[0.04] bg-[center_top_-1px] dark:bg-grid-slate-400/[0.05] bg-data-lines" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,theme(colors.indigo.500/20%),transparent_40%)]" />
+    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <div className="fixed inset-0 z-0 bg-blockchain-glow overflow-hidden" style={{ position: 'fixed' }}>
+        <div className="absolute inset-0 bg-grid-animate bg-grid-glow opacity-100" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,theme(colors.indigo.500/40%),transparent_50%)]" />
         
-        <div className="absolute top-1/4 left-1/4 w-1/3 h-1/3 bg-blockchain-gradient rounded-full blur-3xl opacity-20 animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-1/4 h-1/4 bg-blockchain-gradient rounded-full blur-3xl opacity-20 animate-pulse-slow" />
+        <div className="pulse-point pulse-point-1" style={{ zIndex: 1 }} />
+        <div className="pulse-point pulse-point-2" style={{ zIndex: 1 }} />
+        <div className="pulse-point pulse-point-3" style={{ zIndex: 1 }} />
+        
+        <div className="absolute top-1/4 right-1/4 w-1/3 h-1/3 bg-blockchain-gradient rounded-full blur-3xl opacity-50 animate-pulse" />
+        <div className="absolute bottom-1/4 left-1/4 w-1/4 h-1/4 bg-blockchain-gradient rounded-full blur-3xl opacity-50 animate-pulse-slow" />
       </div>
       
       <div className="w-full max-w-md space-y-6 relative z-10">
@@ -74,11 +78,11 @@ export default function SignUp() {
           </p>
         </div>
         
-        <Card className="bg-background/80 backdrop-blur-sm border-primary/10 shadow-xl">
-          <div className="absolute inset-0 -z-10 bg-blockchain-gradient opacity-5" />
-          <div className="absolute inset-0 -z-10 bg-nodes opacity-5" />
+        <Card className="bg-background/80 backdrop-blur-sm border-primary/10 shadow-xl relative">
+          <div className="absolute inset-0 bg-blockchain-gradient opacity-5" />
+          <div className="absolute inset-0 bg-nodes opacity-5" />
           
-          <CardHeader>
+          <CardHeader className="relative z-10">
             <CardTitle className="text-2xl font-semibold text-center">Join PuckFinance</CardTitle>
             <CardDescription className="text-center">
               Create your account to get started

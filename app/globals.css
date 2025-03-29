@@ -214,3 +214,100 @@
     transform: translateY(25%) translateX(25%) rotate(25deg);
   }
 }
+
+@layer utilities {
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .bg-shimmer {
+    animation: shimmer 8s linear infinite;
+    background-size: 200% 100%;
+  }
+  
+  .bg-grid-animate {
+    background-size: 50px 50px;
+    background-image: 
+      linear-gradient(to right, theme(colors.slate.700/20%) 1px, transparent 1px),
+      linear-gradient(to bottom, theme(colors.slate.700/20%) 1px, transparent 1px);
+    mask-image: radial-gradient(circle, white 80%, transparent 100%);
+  }
+  
+  .bg-grid-glow {
+    background-size: 50px 50px;
+    background-image: 
+      linear-gradient(to right, theme(colors.indigo.500/15%) 1px, transparent 1px),
+      linear-gradient(to bottom, theme(colors.indigo.500/15%) 1px, transparent 1px);
+    animation: gridPulse 4s ease infinite;
+  }
+  
+  .bg-nodes {
+    background-image: radial-gradient(circle, theme(colors.slate.400/20%) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  
+  .pulse-point {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    background: radial-gradient(circle, theme(colors.indigo.400/70%) 0%, transparent 70%);
+    animation: pulsePoint 3s cubic-bezier(0, 0.55, 0.45, 1) infinite;
+    z-index: 5;
+    pointer-events: none;
+  }
+  
+  .pulse-point-1 {
+    width: 300px;
+    height: 300px;
+    top: 20%;
+    left: 30%;
+    animation-delay: 0s;
+  }
+  
+  .pulse-point-2 {
+    width: 250px;
+    height: 250px;
+    bottom: 30%;
+    right: 20%;
+    animation-delay: 1s;
+  }
+  
+  .pulse-point-3 {
+    width: 200px;
+    height: 200px;
+    top: 70%;
+    left: 10%;
+    animation-delay: 2s;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes gridPulse {
+  0% {
+    opacity: 0.6;
+    background-size: 50px 50px;
+  }
+  50% {
+    opacity: 0.8;
+    background-size: 52px 52px;
+  }
+  100% {
+    opacity: 0.6;
+    background-size: 50px 50px;
+  }
+}
+
+@keyframes pulsePoint {
+  0% {
+    transform: scale(0);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}

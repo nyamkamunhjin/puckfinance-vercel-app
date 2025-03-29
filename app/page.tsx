@@ -2,7 +2,6 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
@@ -40,7 +39,6 @@ const stats = [
 
 export default function Home() {
   const { data: session, status } = useSession();
-  const router = useRouter();
 
   // If not authenticated and not loading, show the marketing home page
   if (status !== "loading" && !session) {
@@ -51,14 +49,19 @@ export default function Home() {
         <main className="flex-1">
           {/* Hero Section with enhanced blockchain gradients */}
           <div className="relative overflow-hidden bg-gradient-to-b from-background to-background/90 pb-16 bg-blockchain-glow bg-hero-glow">
-            <div className="absolute inset-0 bg-grid-slate-900/[0.04] bg-[center_top_-1px] dark:bg-grid-slate-400/[0.05] bg-data-lines -z-10" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,theme(colors.indigo.500/20%),transparent_40%)] -z-10" />
+            <div className="absolute inset-0 bg-grid-animate bg-grid-glow opacity-100 z-0" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,theme(colors.indigo.500/40%),transparent_50%)] z-0" />
+            
+            {/* Pulse points */}
+            <div className="pulse-point pulse-point-1" style={{ zIndex: 1 }} />
+            <div className="pulse-point pulse-point-2" style={{ zIndex: 1 }} />
+            <div className="pulse-point pulse-point-3" style={{ zIndex: 1 }} />
             
             <div className="container mx-auto px-4 pt-20 pb-16 text-center lg:pt-32 relative z-10">
-              <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-blockchain-gradient rounded-full blur-3xl opacity-20 animate-pulse z-0"></div>
-              <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-blockchain-gradient rounded-full blur-3xl opacity-20 animate-pulse z-0" style={{ animationDelay: '1s' }}></div>
+              <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-blockchain-gradient rounded-full blur-3xl opacity-50 animate-pulse z-0"></div>
+              <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-blockchain-gradient rounded-full blur-3xl opacity-50 animate-pulse z-0" style={{ animationDelay: '1s' }}></div>
               
-              <h1 className="mx-auto max-w-4xl text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 mb-6 relative z-10">
+              <h1 className="mx-auto max-w-4xl text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 mb-6 relative z-10 pb-4">
                 Automate Your Crypto Trading Strategy
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-xl text-muted-foreground relative z-10">
@@ -75,11 +78,35 @@ export default function Home() {
               <div className="mt-14 relative z-10">
                 <div className="relative mx-auto max-w-5xl rounded-xl border border-primary/10 shadow-2xl bg-background/50 backdrop-blur-sm overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 z-0 bg-shimmer" />
-                  <div className="relative z-10 p-2">
-                    <div className="h-[350px] sm:h-[400px] md:h-[500px] w-full bg-slate-800/90 rounded-lg flex items-center justify-center relative overflow-hidden">
-                      <div className="absolute inset-0 bg-nodes"></div>
-                      <div className="absolute inset-0 bg-blockchain-gradient opacity-30"></div>
-                      <p className="text-muted-foreground relative z-10">Trading Dashboard Preview</p>
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,theme(colors.pink.500/15%),transparent_70%)]" />
+                  <div className="absolute inset-0 bg-nodes opacity-10" />
+                  
+                  <div className="py-16 px-8 flex flex-col items-center justify-center relative z-10">
+                    <div className="w-20 h-20 rounded-full bg-indigo-500/10 flex items-center justify-center mb-6 relative">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      <div className="absolute -inset-1 rounded-full border border-indigo-500/20 animate-pulse"></div>
+                    </div>
+                    
+                    <h2 className="text-2xl font-bold text-center mb-2">Power Your Trading with Automation</h2>
+                    <p className="text-center text-muted-foreground max-w-lg mb-6">
+                      Connect TradingView alerts to your exchange accounts and let your strategies work for you 24/7.
+                    </p>
+                    
+                    <div className="flex space-x-3">
+                      <div className="flex items-center text-sm">
+                        <div className="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
+                        <span>Real-time Execution</span>
+                      </div>
+                      <div className="flex items-center text-sm">
+                        <div className="h-2 w-2 rounded-full bg-blue-500 mr-2"></div>
+                        <span>Risk Management</span>
+                      </div>
+                      <div className="flex items-center text-sm">
+                        <div className="h-2 w-2 rounded-full bg-purple-500 mr-2"></div>
+                        <span>Performance Analytics</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -88,8 +115,12 @@ export default function Home() {
           </div>
           
           {/* Features Section with blockchain dot patterns */}
-          <section className="py-20 bg-muted/30 relative overflow-hidden bg-nodes">
-            <div className="absolute inset-0 bg-blockchain-gradient opacity-20"></div>
+          <section className="py-20 bg-muted/30 relative overflow-hidden">
+            <div className="absolute inset-0 bg-blockchain-gradient opacity-40 z-0"></div>
+            <div className="absolute inset-0 opacity-80 z-0"></div>
+            <div className="absolute inset-0 bg-nodes opacity-60 z-0"></div>
+            <div className="pulse-point pulse-point-2" style={{ zIndex: 1, animationDelay: '2.5s' }} />
+            <div className="pulse-point pulse-point-3" style={{ zIndex: 1, animationDelay: '0.8s' }} />
             <div className="container mx-auto px-4 relative z-10">
               <div className="text-center mb-16">
                 <h2 className="text-3xl font-bold">All-in-One Trading Solution</h2>
