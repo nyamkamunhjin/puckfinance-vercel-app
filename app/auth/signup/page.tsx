@@ -4,28 +4,48 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signUp } from "@/lib/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+
+const formSchema = z.object({
+  email: z.string().email({
+    message: "Please enter a valid email address",
+  }),
+  password: z.string().min(8, {
+    message: "Password must be at least 8 characters",
+  }),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
 
 export default function SignUp() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setError("");
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      await signUp(email, password);
+      await signUp(values.email, values.password);
       router.push("/auth/signin?registered=true");
     } catch (error: any) {
       setError(error.message || "An error occurred during sign up");
@@ -36,84 +56,122 @@ export default function SignUp() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight">
-            Create your account
+      <div className="fixed inset-0 -z-10 bg-blockchain-glow overflow-hidden">
+        <div className="absolute inset-0 bg-grid-slate-900/[0.04] bg-[center_top_-1px] dark:bg-grid-slate-400/[0.05] bg-data-lines" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,theme(colors.indigo.500/20%),transparent_40%)]" />
+        
+        <div className="absolute top-1/4 left-1/4 w-1/3 h-1/3 bg-blockchain-gradient rounded-full blur-3xl opacity-20 animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-1/4 h-1/4 bg-blockchain-gradient rounded-full blur-3xl opacity-20 animate-pulse-slow" />
+      </div>
+      
+      <div className="w-full max-w-md space-y-6 relative z-10">
+        <div className="text-center">
+          <h2 className="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+            Create Account
           </h2>
+          <p className="mt-2 text-muted-foreground">
+            Start your crypto trading journey with us
+          </p>
         </div>
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <span className="block sm:inline">{error}</span>
-          </div>
-        )}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email-address" className="block text-sm font-medium leading-6 text-gray-900">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="relative block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="relative block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirm-password" className="block text-sm font-medium leading-6 text-gray-900">
-                Confirm Password
-              </label>
-              <input
-                id="confirm-password"
-                name="confirm-password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="relative block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="Confirm password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? "Creating account..." : "Sign up"}
-            </button>
-          </div>
-        </form>
-        <div className="text-sm text-center">
-          <Link href="/auth/signin" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Already have an account? Sign in
-          </Link>
-        </div>
+        
+        <Card className="bg-background/80 backdrop-blur-sm border-primary/10 shadow-xl">
+          <div className="absolute inset-0 -z-10 bg-blockchain-gradient opacity-5" />
+          <div className="absolute inset-0 -z-10 bg-nodes opacity-5" />
+          
+          <CardHeader>
+            <CardTitle className="text-2xl font-semibold text-center">Join PuckFinance</CardTitle>
+            <CardDescription className="text-center">
+              Create your account to get started
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="relative z-10">
+            {error && (
+              <Alert variant="destructive" className="mb-4 bg-destructive/10 text-destructive border-destructive/20">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="you@example.com" 
+                          className="relative z-10 bg-background/90" 
+                          autoComplete="email"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="password" 
+                          className="relative z-10 bg-background/90" 
+                          autoComplete="new-password"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="password" 
+                          className="relative z-10 bg-background/90" 
+                          autoComplete="new-password"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <Button 
+                  type="submit" 
+                  variant="black"
+                  className="w-full relative z-30" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating account..." : "Sign up"}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+          
+          <CardFooter className="flex justify-center border-t border-border/30 pt-4 relative z-10">
+            <p className="text-sm text-muted-foreground">
+              Already have an account?{" "}
+              <Link href="/auth/signin" className="font-medium text-primary hover:text-primary/80 underline-offset-4 hover:underline z-30 px-1 py-0.5 relative">
+                Sign in
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

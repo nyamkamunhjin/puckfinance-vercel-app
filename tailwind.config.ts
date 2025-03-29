@@ -7,6 +7,7 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: ["class", ".dark"],
+  important: true,
   theme: {
     container: {
       center: true,
