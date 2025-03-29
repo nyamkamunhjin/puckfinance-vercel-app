@@ -120,3 +120,97 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Background Grid Pattern */
+.bg-grid-slate-900\/\[0\.04\] {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(15 23 42 / 0.04)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+}
+
+.dark .bg-grid-slate-400\/\[0\.05\] {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.05)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+}
+
+/* Enhanced Blockchain Gradients */
+.bg-blockchain-gradient {
+  background: linear-gradient(130deg, rgba(81, 56, 238, 0.03) 0%, rgba(111, 78, 255, 0.05) 25%, rgba(255, 86, 246, 0.04) 50%, rgba(255, 176, 109, 0.03) 100%);
+}
+
+.bg-blockchain-glow {
+  position: relative;
+}
+
+.bg-blockchain-glow::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at top right, rgba(81, 56, 238, 0.15), transparent 45%),
+               radial-gradient(circle at bottom left, rgba(255, 46, 186, 0.12), transparent 40%);
+  z-index: -1;
+}
+
+.bg-data-lines {
+  background-size: 30px 30px;
+  background-image: 
+    linear-gradient(to right, rgba(81, 56, 238, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(81, 56, 238, 0.03) 1px, transparent 1px);
+}
+
+.bg-nodes {
+  position: relative;
+}
+
+.bg-nodes::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(rgba(111, 78, 255, 0.1) 2px, transparent 2px),
+    radial-gradient(rgba(255, 86, 246, 0.05) 2px, transparent 2px);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+  z-index: -1;
+}
+
+.bg-hero-glow {
+  background: 
+    radial-gradient(circle at 10% 25%, rgba(126, 78, 255, 0.18) 0%, transparent 25%),
+    radial-gradient(circle at 85% 80%, rgba(238, 56, 199, 0.12) 0%, transparent 30%);
+}
+
+.bg-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-shimmer::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0.03) 50%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0) 100%);
+  transform: rotate(25deg);
+  animation: shimmer 10s infinite linear;
+  z-index: 1;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateY(-25%) translateX(-25%) rotate(25deg);
+  }
+  100% {
+    transform: translateY(25%) translateX(25%) rotate(25deg);
+  }
+}
