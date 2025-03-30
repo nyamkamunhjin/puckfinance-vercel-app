@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AuthNav } from "@/components/auth-nav";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 interface NavItem {
