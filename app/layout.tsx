@@ -16,39 +16,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "PuckFinance | Crypto Trading Strategy Automation",
   description: "Connect TradingView strategies to exchanges, manage your crypto trading portfolio, and monitor performance all in one powerful platform.",
-  keywords: [
-    "crypto trading",
-    "trading automation",
-    "TradingView integration",
-    "Binance",
-    "Bybit",
-    "portfolio management",
-    "trading strategy",
-    "crypto exchange",
-  ],
-  authors: [{ name: "PuckFinance Team" }],
-  openGraph: {
-    title: "PuckFinance | Crypto Trading Strategy Automation",
-    description: "Connect TradingView strategies to exchanges, manage your crypto trading portfolio, and monitor performance all in one powerful platform.",
-    url: "https://puckfinance.com",
-    siteName: "PuckFinance",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "PuckFinance - Automate Your Crypto Trading Strategy",
-      },
-    ],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "PuckFinance | Crypto Trading Strategy Automation",
-    description: "Connect TradingView strategies to exchanges, manage your crypto trading portfolio, and monitor performance all in one powerful platform.",
-    images: ["/twitter-image.png"],
-    creator: "@puckfinance",
-  },
 };
 
 export default function RootLayout({

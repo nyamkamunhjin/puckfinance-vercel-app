@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AuthGuard } from "@/components/auth-guard";
 import { getTradeAccountById, updateTradeAccount, Provider } from "@/lib/trade-accounts";
@@ -11,15 +11,10 @@ import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function EditTradeAccountPage({
-  params,
-}: {
-  params: Promise<{ id: string }> | { id: string };
-}) {
+export default function EditTradeAccountPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  // Use params as a Promise or as a direct value
-  const { id } = 'then' in params ? React.use(params) : params;
+  const { id } = useParams();
   
   const [name, setName] = useState("");
   const [apiKey, setApiKey] = useState("");
@@ -35,6 +30,11 @@ export default function EditTradeAccountPage({
       
       try {
         setLoading(true);
+
+        if (typeof id !== 'string') {
+          throw new Error("Invalid trade account ID");
+        }
+
         const account = await getTradeAccountById(id, session.accessToken);
         setName(account.name);
         setApiKey(account.apiKey);
@@ -65,6 +65,9 @@ export default function EditTradeAccountPage({
 
     try {
       // Only updating the name
+      if (typeof id !== 'string') {
+        throw new Error("Invalid trade account ID");
+      }
       await updateTradeAccount(id, {
         name,
         // We're not using these values anymore but need to include them for type compatibility
