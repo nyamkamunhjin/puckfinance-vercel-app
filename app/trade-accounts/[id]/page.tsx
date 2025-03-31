@@ -176,20 +176,32 @@ export default function EditTradeAccountPage({
                   </div>
                 </form>
               </CardContent>
-              <CardFooter className="flex justify-end gap-2">
-                <Button 
-                  variant="outline" 
-                  onClick={() => router.push("/trade-accounts")}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit"
-                  form="edit-account-form"
-                  disabled={updating}
-                >
-                  {updating ? "Updating..." : "Update Name"}
-                </Button>
+              <CardFooter className="flex justify-between gap-2">
+                <div>
+                  <Button
+                    variant="outline"
+                    asChild
+                  >
+                    <Link href={`/trade-accounts/${id}/trade-history`}>
+                      View Trade History
+                    </Link>
+                  </Button>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => router.push("/trade-accounts")}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit"
+                    form="edit-account-form"
+                    disabled={updating}
+                  >
+                    {updating ? "Updating..." : "Update Name"}
+                  </Button>
+                </div>
               </CardFooter>
             </Card>
           </div>
