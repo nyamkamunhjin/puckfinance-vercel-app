@@ -4,7 +4,6 @@ import { authOptions } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
-  context: { params: { trade_account_id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -13,7 +12,7 @@ export async function GET(
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     
-    const tradeAccountId = context.params.trade_account_id;
+    const tradeAccountId = request.nextUrl.searchParams.get('trade_account_id');
     
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/binance/balance/${tradeAccountId}?api_key=munkhjinbnoo`,
