@@ -47,13 +47,15 @@ export interface Income {
 }
 
 export interface Balance {
+  accountAlias: string;
   asset: string;
   balance: string;
   crossWalletBalance: string;
   crossUnPnl: string;
   availableBalance: string;
   maxWithdrawAmount: string;
-  [key: string]: any;
+  marginAvailable: boolean;
+  updateTime: number;
 }
 
 export interface TradeHistoryItem {
@@ -134,7 +136,7 @@ export async function executeEntry(
 export async function getBalance(
   tradeAccountId: string, 
   accessToken?: string
-): Promise<Balance[]> {
+): Promise<Balance> {
   if (!accessToken) {
     throw new Error("Not authenticated");
   }

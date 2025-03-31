@@ -103,6 +103,11 @@ export default function EditTradeAccountPage({
               <h1 className="text-3xl font-bold tracking-tight">Edit Trade Account</h1>
               <div className="flex gap-2">
                 <Button variant="outline" asChild>
+                  <Link href={`/trade-accounts/${id}/dashboard`}>
+                    Dashboard
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
                   <Link href={`/trade-accounts/${id}/trade-history`}>
                     Trade History
                   </Link>
@@ -183,32 +188,20 @@ export default function EditTradeAccountPage({
                   </div>
                 </form>
               </CardContent>
-              <CardFooter className="flex justify-between gap-2">
-                <div>
-                  <Button
-                    variant="outline"
-                    asChild
-                  >
-                    <Link href={`/trade-accounts/${id}/trade-history`}>
-                      View Trade History
-                    </Link>
-                  </Button>
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => router.push("/trade-accounts")}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit"
-                    form="edit-account-form"
-                    disabled={updating}
-                  >
-                    {updating ? "Updating..." : "Update Name"}
-                  </Button>
-                </div>
+              <CardFooter className="flex justify-end gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => router.push("/trade-accounts")}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit"
+                  form="edit-account-form"
+                  disabled={updating}
+                >
+                  {updating ? "Updating..." : "Update Name"}
+                </Button>
               </CardFooter>
             </Card>
           </div>
