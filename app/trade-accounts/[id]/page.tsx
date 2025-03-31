@@ -101,11 +101,18 @@ export default function EditTradeAccountPage({
           <div className="max-w-2xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-bold tracking-tight">Edit Trade Account</h1>
-              <Button variant="outline" asChild>
-                <Link href="/trade-accounts">
-                  Back to Accounts
-                </Link>
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" asChild>
+                  <Link href={`/trade-accounts/${id}/trade-history`}>
+                    Trade History
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/trade-accounts">
+                    Back to Accounts
+                  </Link>
+                </Button>
+              </div>
             </div>
 
             <Card>

@@ -102,6 +102,11 @@ export default function TradeAccountsPage() {
                   </CardContent>
                   <CardFooter className="flex justify-end gap-2">
                     <Button variant="outline" size="sm" asChild>
+                      <Link href={`/trade-accounts/${account.id}/trade-history`}>
+                        Trade History
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
                       <Link href={`/trade-accounts/${account.id}`}>
                         Edit
                       </Link>
