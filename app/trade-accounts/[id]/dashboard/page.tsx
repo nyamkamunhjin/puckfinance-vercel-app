@@ -31,6 +31,7 @@ import {
   PaginationPrevious 
 } from "@/components/ui/pagination";
 import ProfitChart from "../../../../components/profit-chart";
+import { Input } from "../../../../components/ui/input";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -157,19 +158,21 @@ export default function TradeAccountDashboard() {
             </div>
           ) : (
             <>
-              {/* Balance Chart */}
-              {snapshots.length > 0 && (
-                <div className="mb-6">
-                  <CardChart 
-                    title="Balance History (30 Days)" 
-                    data={prepareChartData()} 
-                    valuePrefix="$"
-                    color="#10b981" // Green color
-                  />
-                </div>
-              )}
+              
 
               <div className="grid grid-cols-1 gap-6">
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Entry webhook link</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium border border-gray-400 rounded-md p-2">{`${process.env.NEXT_PUBLIC_API_URL}/api/binance/entry/${id}?api_key=munkhjinbnoo`}</span>
+                    <Button variant="outline" className="" onClick={() => navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_API_URL}/api/binance/entry/${id}?api_key=munkhjinbnoo`)}>Copy</Button>
+                  </div>
+                </CardContent>
+              </Card>
                 {/* Account Balance Section */}
                 <Card>
                   <CardHeader>
