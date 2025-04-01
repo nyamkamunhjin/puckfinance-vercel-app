@@ -10,6 +10,7 @@ import {
   TableBody, 
   TableCaption, 
   TableCell, 
+  TableFooter, 
   TableHead, 
   TableHeader, 
   TableRow 
@@ -20,6 +21,18 @@ import Link from "next/link";
 import { Balance, Income, Snapshot, getBalance, getIncome, getSnapshots } from "@/lib/binance";
 import { CardChart } from "@/components/ui/card-chart";
 import { subDays } from "date-fns";
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationEllipsis, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from "@/components/ui/pagination";
+import ProfitChart from "../../../../components/profit-chart";
+
+const ITEMS_PER_PAGE = 10;
 
 export default function TradeAccountDashboard() {
   const { id } = useParams();
@@ -30,6 +43,7 @@ export default function TradeAccountDashboard() {
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,6 +105,19 @@ export default function TradeAccountDashboard() {
     })).sort((a, b) => a.time - b.time);
   };
 
+  // Calculate pagination values
+  const totalItems = income.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentItems = income
+    .sort((a, b) => b.time - a.time)
+    .slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <AuthGuard>
       <div className="min-h-screen bg-background flex flex-col">
@@ -142,7 +169,7 @@ export default function TradeAccountDashboard() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-6">
                 {/* Account Balance Section */}
                 <Card>
                   <CardHeader>
@@ -188,26 +215,28 @@ export default function TradeAccountDashboard() {
                     <CardTitle>Recent Income</CardTitle>
                   </CardHeader>
                   <CardContent>
+                    <ProfitChart incomeData={income} />
                     <div className="overflow-x-auto">
                       <Table>
-                        <TableCaption>Last 10 income entries</TableCaption>
                         <TableHeader>
                           <TableRow>
                             <TableHead>Time</TableHead>
+                            <TableHead>Id</TableHead>
                             <TableHead>Symbol</TableHead>
                             <TableHead>Type</TableHead>
                             <TableHead>Amount</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {income.length === 0 ? (
+                          {currentItems.length === 0 ? (
                             <TableRow>
-                              <TableCell colSpan={4} className="text-center">No income data available</TableCell>
+                              <TableCell colSpan={5} className="text-center">No income data available</TableCell>
                             </TableRow>
                           ) : (
-                            income.slice(0, 10).map((item) => (
+                            currentItems.map((item) => (
                               <TableRow key={item.tranId}>
                                 <TableCell>{formatDate(item.time)}</TableCell>
+                                <TableCell>{item.info}</TableCell>
                                 <TableCell>{item.symbol}</TableCell>
                                 <TableCell>{item.incomeType}</TableCell>
                                 <TableCell className={parseFloat(item.income) >= 0 ? 'text-green-600' : 'text-red-600'}>
@@ -218,6 +247,62 @@ export default function TradeAccountDashboard() {
                           )}
                         </TableBody>
                       </Table>
+                      <Pagination className="mt-4">
+                        <PaginationContent>
+                          <PaginationItem>
+                            <PaginationPrevious 
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                if (currentPage > 1) handlePageChange(currentPage - 1);
+                              }}
+                            />
+                          </PaginationItem>
+
+                          {Array.from({ length: totalPages }, (_, i) => i + 1)
+                            .filter(page => {
+                              // Show first page, last page, and pages around current page
+                              const nearCurrent = Math.abs(page - currentPage) <= 1;
+                              const isFirstOrLast = page === 1 || page === totalPages;
+                              return nearCurrent || isFirstOrLast;
+                            })
+                            .map((page, index, array) => {
+                              // If there's a gap in the sequence, add ellipsis
+                              if (index > 0 && page - array[index - 1] > 1) {
+                                return (
+                                  <PaginationItem key={`ellipsis-${page}`}>
+                                    <PaginationEllipsis />
+                                  </PaginationItem>
+                                );
+                              }
+                              
+                              return (
+                                <PaginationItem key={page}>
+                                  <PaginationLink
+                                    href="#"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handlePageChange(page);
+                                    }}
+                                    isActive={page === currentPage}
+                                  >
+                                    {page}
+                                  </PaginationLink>
+                                </PaginationItem>
+                              );
+                            })}
+
+                          <PaginationItem>
+                            <PaginationNext 
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                if (currentPage < totalPages) handlePageChange(currentPage + 1);
+                              }}
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
                     </div>
                   </CardContent>
                 </Card>
