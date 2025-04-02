@@ -190,7 +190,7 @@ function SignInForm() {
 
                                 <Button
                                     type="submit"
-                                    variant="black"
+                                    variant="default"
                                     className="w-full relative z-30"
                                     disabled={isLoading}
                                 >
