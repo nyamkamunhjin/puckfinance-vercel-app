@@ -4,7 +4,7 @@ export interface PositionRisk {
   positionAmt: string;
   entryPrice: string;
   markPrice: string;
-  unRealizedProfit: string;
+  unrealizedProfit: string;
   liquidationPrice: string;
   leverage: string;
   maxNotionalValue: string;
@@ -218,7 +218,7 @@ export async function getCurrentPosition(
   }
   
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/binance/current-position/${tradeAccountId}&api_key=munkhjinbnoo`, 
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/binance/current-position/${tradeAccountId}?api_key=munkhjinbnoo`, 
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,

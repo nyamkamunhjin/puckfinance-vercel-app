@@ -3,14 +3,24 @@ import React, { FC, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { AuthGuard } from "../../components/auth-guard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Balance, getBalance } from "@/lib/binance";
+import { Balance, getBalance, PositionRisk, getCurrentPosition } from "@/lib/binance";
 import { TradeAccount, getTradeAccounts } from "@/lib/trade-accounts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import {
+	Table,
+	TableBody,
+	TableCaption,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
 
 interface AccountWithBalance extends TradeAccount {
 	balance?: Balance;
+	positions?: PositionRisk[];
 }
 
 /**
@@ -32,15 +42,28 @@ const DashboardPage: FC = () => {
 				setLoading(true);
 				const data = await getTradeAccounts(session.accessToken);
 
-				// Fetch balances for all accounts
-				const accountsWithBalances = await Promise.all(
+				// Fetch balances and positions for all accounts
+				const accountsWithData = await Promise.all(
 					data.map(async (account) => {
 						try {
 							const balance = await getBalance(account.id, session.accessToken);
-							return { ...account, balance };
+							const positions = await getCurrentPosition(account.id, session.accessToken);
+
+							console.log(positions);
+							
+							// Filter out positions with zero amount
+							const activePositions = positions.filter(
+								(position) => parseFloat(position.positionAmt) !== 0
+							);
+							
+							return { 
+								...account, 
+								balance,
+								positions: activePositions 
+							};
 						} catch (err) {
 							console.error(
-								`Failed to fetch balance for account ${account.id}:`,
+								`Failed to fetch data for account ${account.id}:`,
 								err
 							);
 							return account;
@@ -48,7 +71,7 @@ const DashboardPage: FC = () => {
 					})
 				);
 
-				setAccounts(accountsWithBalances);
+				setAccounts(accountsWithData);
 				setError(null);
 			} catch (err: any) {
 				setError(err.message || "Failed to load trade accounts");
@@ -78,6 +101,43 @@ const DashboardPage: FC = () => {
 			}
 			return total;
 		}, 0);
+	};
+
+	// Get all active positions across all accounts
+	const getAllPositions = () => {
+		const allPositions: Array<{ accountName: string; position: PositionRisk }> = [];
+		
+		accounts.forEach(account => {
+			if (account.positions && account.positions.length > 0) {
+				account.positions.forEach(position => {
+					allPositions.push({
+						accountName: account.name,
+						position
+					});
+				});
+			}
+		});
+		
+		// Sort by unrealized profit (descending)
+		return allPositions.sort((a, b) => 
+			parseFloat(b.position.unrealizedProfit) - parseFloat(a.position.unrealizedProfit)
+		);
+	};
+
+	// Format currency value
+	const formatCurrency = (value: string) => {
+		const numValue = parseFloat(value);
+		return numValue.toLocaleString(undefined, {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2
+		});
+	};
+
+	// Calculate position size in USD
+	const getPositionValueUSD = (position: PositionRisk) => {
+		const positionAmt = parseFloat(position.positionAmt);
+		const positionInitialMargin = parseFloat(position.positionInitialMargin);
+		return Math.abs(positionAmt * positionInitialMargin);
 	};
 
 	return (
@@ -170,6 +230,94 @@ const DashboardPage: FC = () => {
 						</CardContent>
 					</Card>
 				</div>
+
+				{/* Current Positions Table */}
+				<Card className="bg-background/60 backdrop-blur-sm border-primary/10 hover:shadow-md hover:border-primary/20 transition-all">
+					<CardHeader>
+						<CardTitle>Current Positions</CardTitle>
+					</CardHeader>
+					<CardContent>
+						{loading ? (
+							<div className="space-y-3">
+								<Skeleton className="h-6 w-full" />
+								<Skeleton className="h-20 w-full" />
+							</div>
+						) : (
+							<div className="rounded-md border">
+								<Table>
+									<TableCaption className="m-2">
+										A list of all current positions across your accounts
+									</TableCaption>
+									<TableHeader>
+										<TableRow>
+											<TableHead>Account</TableHead>
+											<TableHead>Symbol</TableHead>
+											<TableHead>Side</TableHead>
+											<TableHead>Size</TableHead>
+											<TableHead className="text-right">Entry Price</TableHead>
+											<TableHead className="text-right">Break Even Price</TableHead>
+											<TableHead className="text-right">Value (USD)</TableHead>
+											<TableHead className="text-right">Unrealized PnL</TableHead>
+										</TableRow>
+									</TableHeader>
+									<TableBody>
+										{getAllPositions().length === 0 ? (
+											<TableRow>
+												<TableCell
+													colSpan={8}
+													className="h-24 text-center text-muted-foreground"
+												>
+													No active positions found
+												</TableCell>
+											</TableRow>
+										) : (
+											getAllPositions().map((item, index) => (
+												<TableRow key={`${item.accountName}-${item.position.symbol}-${index}`}>
+													<TableCell className="font-medium">
+														{item.accountName}
+													</TableCell>
+													<TableCell>{item.position.symbol}</TableCell>
+													<TableCell>
+														<span
+															className={
+																parseFloat(item.position.positionAmt) > 0
+																	? "text-green-600 font-medium"
+																	: "text-red-600 font-medium"
+															}
+														>
+															{parseFloat(item.position.positionAmt) > 0
+																? "LONG"
+																: "SHORT"}
+														</span>
+													</TableCell>
+													<TableCell>{parseFloat(item.position.positionAmt).toFixed(4)}</TableCell>
+													<TableCell className="text-right font-mono">
+														{formatCurrency(item.position.entryPrice)}
+													</TableCell>
+													<TableCell className="text-right font-mono">
+														{formatCurrency(item.position.breakEvenPrice)}
+													</TableCell>
+													<TableCell className="text-right font-mono">
+														${formatCurrency(getPositionValueUSD(item.position).toString())}
+													</TableCell>
+													<TableCell
+														className={`text-right font-mono ${
+															parseFloat(item.position.unrealizedProfit) >= 0
+																? "text-green-600"
+																: "text-red-600"
+														}`}
+													>
+														${formatCurrency(item.position.unrealizedProfit)}
+													</TableCell>
+												</TableRow>
+											))
+										)}
+									</TableBody>
+								</Table>
+							</div>
+						)}
+					</CardContent>
+				</Card>
 			</div>
 		</AuthGuard>
 	);
