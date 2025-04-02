@@ -211,7 +211,6 @@ export async function getTradeHistory(
 
 export async function getCurrentPosition(
   tradeAccountId: string, 
-  symbol: string, 
   accessToken?: string
 ): Promise<PositionRisk[]> {
   if (!accessToken) {
@@ -219,7 +218,7 @@ export async function getCurrentPosition(
   }
   
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/binance/current-position/${tradeAccountId}?symbol=${symbol}&api_key=munkhjinbnoo`, 
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/binance/current-position/${tradeAccountId}&api_key=munkhjinbnoo`, 
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,

@@ -13,7 +13,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/", requiresAuth: true },
+  { label: "Dashboard", href: "/dashboard", requiresAuth: true },
   { label: "Trade Accounts", href: "/trade-accounts", requiresAuth: true },
 ];
 

@@ -13,14 +13,10 @@ export async function GET(
     }
     
     const tradeAccountId = request.nextUrl.searchParams.get('trade_account_id');
-    const symbol = request.nextUrl.searchParams.get('symbol');
     
-    if (!symbol) {
-      return NextResponse.json({ error: 'Symbol is required' }, { status: 400 });
-    }
     
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/binance/current-position/${tradeAccountId}?symbol=${symbol}&api_key=munkhjinbnoo`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/binance/current-position/${tradeAccountId}&api_key=munkhjinbnoo`,
       {
         headers: {
           Authorization: `Bearer ${session.accessToken}`,
