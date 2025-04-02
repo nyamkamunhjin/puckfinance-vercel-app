@@ -5,15 +5,20 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AuthGuard } from "@/components/auth-guard";
 import { TradeAccount, getTradeAccounts, deleteTradeAccount } from "@/lib/trade-accounts";
+import { Balance, getBalance } from "@/lib/binance";
 import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
+interface AccountWithBalance extends TradeAccount {
+  balance?: Balance;
+}
+
 export default function TradeAccountsPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [accounts, setAccounts] = useState<TradeAccount[]>([]);
+  const [accounts, setAccounts] = useState<AccountWithBalance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,7 +29,21 @@ export default function TradeAccountsPage() {
       try {
         setLoading(true);
         const data = await getTradeAccounts(session.accessToken);
-        setAccounts(data);
+        
+        // Fetch balances for all accounts
+        const accountsWithBalances = await Promise.all(
+          data.map(async (account) => {
+            try {
+              const balance = await getBalance(account.id, session.accessToken);
+              return { ...account, balance };
+            } catch (err) {
+              console.error(`Failed to fetch balance for account ${account.id}:`, err);
+              return account;
+            }
+          })
+        );
+        
+        setAccounts(accountsWithBalances);
         setError(null);
       } catch (err: any) {
         setError(err.message || "Failed to load trade accounts");
@@ -94,9 +113,14 @@ export default function TradeAccountsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm">
-                      <span className="font-medium">API Key:</span>{" "}
+                      <span className="font-medium">Balance:</span>{" "}
                       <span className="font-mono">
-                        {account.apiKey.substring(0, 10)}...
+                        {account.balance 
+                          ? `$${parseFloat(account.balance.availableBalance).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}`
+                          : "Loading..."}
                       </span>
                     </div>
                   </CardContent>
