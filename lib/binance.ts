@@ -15,6 +15,10 @@ export interface PositionRisk {
   notional: string;
   isolatedWallet: string;
   updateTime: number;
+  stoploss: string;
+  takeprofit: string;
+  stoplossAmount: number;
+  takeprofitAmount: number;
   [key: string]: any;
 }
 
