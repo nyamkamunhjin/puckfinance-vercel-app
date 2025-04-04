@@ -166,13 +166,13 @@ export default function TradeAccountDashboard() {
 								</CardHeader>
 								<CardContent>
 									<div className="flex items-center gap-2">
-										<span className="text-sm font-medium border border-gray-400 rounded-md p-2">{`${process.env.NEXT_PUBLIC_API_URL}/api/binance/entry/${id}?api_key=munkhjinbnoo`}</span>
+										<span className="text-sm font-medium border border-gray-400 rounded-md p-2">{`${process.env.NEXT_PUBLIC_API_URL}/api/v1/binance/entry/${id}?api_key=munkhjinbnoo`}</span>
 										<Button
 											variant="outline"
 											className=""
 											onClick={() =>
 												navigator.clipboard.writeText(
-													`${process.env.NEXT_PUBLIC_API_URL}/api/binance/entry/${id}?api_key=munkhjinbnoo`
+													`${process.env.NEXT_PUBLIC_API_URL}/api/v1/binance/entry/${id}?api_key=munkhjinbnoo`
 												)
 											}
 										>
