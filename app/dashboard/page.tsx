@@ -22,7 +22,8 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-
+import PnlTable from "@/components/pnl-table";
+import PnlChart from "../../components/pnl-chart";
 interface AccountWithBalance extends TradeAccount {
 	balance?: Balance;
 	positions?: PositionRisk[];
@@ -340,9 +341,11 @@ const DashboardPage: FC = () => {
 																		: "text-red-600"
 																}`}
 															>
-																({formatCurrency(
+																(
+																{formatCurrency(
 																	item.position.stoplossAmount.toFixed(2)
-																)})
+																)}
+																)
 															</span>
 														</div>
 													</TableCell>
@@ -353,16 +356,17 @@ const DashboardPage: FC = () => {
 															</span>
 															/
 															<span
-															className={`${
-																item.position.takeprofitAmount > 0
-																	? "text-green-600"
-																	: "text-red-600"
-															}`}
-														>
-															(
-															{formatCurrency(
-																item.position.takeprofitAmount.toFixed(2)
-																)})
+																className={`${
+																	item.position.takeprofitAmount > 0
+																		? "text-green-600"
+																		: "text-red-600"
+																}`}
+															>
+																(
+																{formatCurrency(
+																	item.position.takeprofitAmount.toFixed(2)
+																)}
+																)
 															</span>
 														</div>
 													</TableCell>
@@ -384,6 +388,9 @@ const DashboardPage: FC = () => {
 						)}
 					</CardContent>
 				</Card>
+
+				<PnlTable />
+				<PnlChart />
 			</div>
 		</AuthGuard>
 	);
