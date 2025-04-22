@@ -22,8 +22,8 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import PnlTable from "@/components/pnl-table";
-import PnlChart from "../../components/pnl-chart";
+import CombinedIncomeTabs from "../../components/CombinedIncomeTabs";
+
 interface AccountWithBalance extends TradeAccount {
 	balance?: Balance;
 	positions?: PositionRisk[];
@@ -389,8 +389,7 @@ const DashboardPage: FC = () => {
 					</CardContent>
 				</Card>
 
-				<PnlTable />
-				<PnlChart />
+				<CombinedIncomeTabs />
 			</div>
 		</AuthGuard>
 	);

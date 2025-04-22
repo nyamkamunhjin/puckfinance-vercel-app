@@ -16,6 +16,16 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
+import React from "react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 
 interface AccountWithIncome {
   account: TradeAccount;
@@ -29,7 +39,13 @@ interface AggregatedIncomeItem {
   incomeByAccount: Record<string, number>;
 }
 
-export default function PnlTable() {
+interface PnlTableProps {
+  page?: number;
+  rowsPerPage?: number;
+  onPageChange?: (page: number) => void;
+}
+
+export default function PnlTable({ page = 1, rowsPerPage, onPageChange }: PnlTableProps) {
   const { data: session } = useSession();
   const [accountsWithIncome, setAccountsWithIncome] = useState<AccountWithIncome[]>([]);
   const [loading, setLoading] = useState(true);
@@ -125,6 +141,13 @@ export default function PnlTable() {
 
   const accountColumns = accountsWithIncome.map(({ account }) => account.name);
 
+  // Pagination logic
+  const totalRows = aggregatedIncomeData.length;
+  const totalPages = rowsPerPage ? Math.ceil(totalRows / rowsPerPage) : 1;
+  const paginatedData = rowsPerPage
+    ? aggregatedIncomeData.slice((page - 1) * rowsPerPage, page * rowsPerPage)
+    : aggregatedIncomeData;
+
   if (loading) {
     return (
       <Card>
@@ -180,7 +203,7 @@ export default function PnlTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {aggregatedIncomeData.map((item) => (
+            {paginatedData.map((item) => (
               <TableRow key={item.date}>
                 <TableCell>{format(new Date(item.time), 'MMM dd, yyyy')}</TableCell>
                 {accountColumns.map((accountName) => (
@@ -222,6 +245,47 @@ export default function PnlTable() {
             </TableRow>
           </TableFooter>
         </Table>
+        {/* Pagination Controls */}
+        {rowsPerPage && totalPages > 1 && onPageChange && (
+          <Pagination className="mt-4">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={e => {
+                    e.preventDefault();
+                    if (page > 1) onPageChange(page - 1);
+                  }}
+                  aria-disabled={page === 1}
+                />
+              </PaginationItem>
+              {Array.from({ length: totalPages }).map((_, idx) => (
+                <PaginationItem key={idx}>
+                  <PaginationLink
+                    href="#"
+                    isActive={page === idx + 1}
+                    onClick={e => {
+                      e.preventDefault();
+                      onPageChange(idx + 1);
+                    }}
+                  >
+                    {idx + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={e => {
+                    e.preventDefault();
+                    if (page < totalPages) onPageChange(page + 1);
+                  }}
+                  aria-disabled={page === totalPages}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </CardContent>
     </Card>
   );
