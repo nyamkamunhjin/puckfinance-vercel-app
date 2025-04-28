@@ -237,7 +237,7 @@ export default function PnlChart({ aggregatedChartData }: PnlChartProps) {
     );
   }
 
-  if (aggregatedChartData.length === 0) {
+  if ((aggregatedChartData as any)?.length === 0) {
     return (
       <Card>
         <CardHeader>

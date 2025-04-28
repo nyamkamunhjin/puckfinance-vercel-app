@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import PnlTable from "./pnl-table";
 import PnlChart from "./pnl-chart";
+import TradingCalendar from "./trading-calendar";
 import { useSession } from "next-auth/react";
 import { Income, getIncome } from "@/lib/binance";
 import { TradeAccount, getTradeAccounts } from "@/lib/trade-accounts";
@@ -145,12 +146,20 @@ const CombinedIncomeTabs: React.FC = () => {
       <TabsList className="mb-4">
         <TabsTrigger value="table">Combined Income</TabsTrigger>
         <TabsTrigger value="chart">Combined Income Over Time</TabsTrigger>
+        <TabsTrigger value="calendar">Trading Calendar</TabsTrigger>
       </TabsList>
       <TabsContent value="table">
         <PnlTable page={page} rowsPerPage={rowsPerPage} onPageChange={setPage} />
       </TabsContent>
       <TabsContent value="chart">
         <PnlChart aggregatedChartData={aggregatedChartData} />
+      </TabsContent>
+      <TabsContent value="calendar">
+        <TradingCalendar 
+          accountsWithIncome={accountsWithIncome}
+          loading={loading}
+          error={error}
+        />
       </TabsContent>
     </Tabs>
   );
