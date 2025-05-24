@@ -1,7 +1,7 @@
 ---
-description: This is helpful for the project
+description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 ---
 description: General rules for Typescript files within the src directory in a NextJS project. Focuses on code clarity, readability, and best practices.

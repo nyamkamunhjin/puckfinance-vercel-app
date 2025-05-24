@@ -23,6 +23,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import CombinedIncomeTabs from "../../components/CombinedIncomeTabs";
+import MonthlyPnLCards from "../../components/MonthlyPnLCards";
 
 interface AccountWithBalance extends TradeAccount {
 	balance?: Balance;
@@ -219,21 +220,6 @@ const DashboardPage: FC = () => {
 					<Card className="bg-background/60 backdrop-blur-sm border-primary/10 hover:shadow-md hover:border-primary/20 transition-all">
 						<CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
 							<CardTitle className="text-sm font-medium">
-								Connected Accounts
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{loading ? (
-								<Skeleton className="h-7 w-[120px]" />
-							) : (
-								<div className="text-2xl font-bold">{accounts.length}</div>
-							)}
-						</CardContent>
-					</Card>
-
-					<Card className="bg-background/60 backdrop-blur-sm border-primary/10 hover:shadow-md hover:border-primary/20 transition-all">
-						<CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-							<CardTitle className="text-sm font-medium">
 								Active Accounts
 							</CardTitle>
 						</CardHeader>
@@ -388,6 +374,12 @@ const DashboardPage: FC = () => {
 						)}
 					</CardContent>
 				</Card>
+
+				{/* Monthly PnL Cards */}
+				<MonthlyPnLCards 
+					accounts={accounts} 
+					accessToken={session?.accessToken} 
+				/>
 
 				<CombinedIncomeTabs />
 			</div>
