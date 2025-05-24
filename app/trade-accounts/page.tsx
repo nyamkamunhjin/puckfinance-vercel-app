@@ -157,27 +157,29 @@ export default function TradeAccountsPage() {
 										</span>
 									</div>
 								</CardContent>
-								<CardFooter className="flex justify-end gap-2">
-									<Button variant="outline" size="sm" asChild>
-										<Link href={`/trade-accounts/${account.id}/dashboard`}>
-											Dashboard
-										</Link>
-									</Button>
-									<Button variant="outline" size="sm" asChild>
-										<Link href={`/trade-accounts/${account.id}/trade-history`}>
-											Trade History
-										</Link>
-									</Button>
-									<Button variant="outline" size="sm" asChild>
-										<Link href={`/trade-accounts/${account.id}`}>Edit</Link>
-									</Button>
-									<Button
-										variant="destructive"
-										size="sm"
-										onClick={() => handleDelete(account.id)}
-									>
-										Delete
-									</Button>
+								<CardFooter className="flex flex-wrap gap-2">
+										<Button variant="outline" size="sm" asChild>
+											<Link href={`/trade-accounts/${account.id}/dashboard`}>
+												Dashboard
+											</Link>
+										</Button>
+										<Button variant="outline" size="sm" asChild>
+											<Link
+												href={`/trade-accounts/${account.id}/trade-history`}
+											>
+												Trade History
+											</Link>
+										</Button>
+										<Button variant="outline" size="sm" asChild>
+											<Link href={`/trade-accounts/${account.id}`}>Edit</Link>
+										</Button>
+										<Button
+											variant="destructive"
+											size="sm"
+											onClick={() => handleDelete(account.id)}
+										>
+											Delete
+										</Button>
 								</CardFooter>
 							</Card>
 						))}
