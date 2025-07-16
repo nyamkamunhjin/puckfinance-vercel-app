@@ -187,6 +187,31 @@ export async function getIncome(
   return response.json();
 }
 
+export async function getCommission(
+    tradeAccountId: string,
+    accessToken?: string
+): Promise<Income[]> {
+    if (!accessToken) {
+        throw new Error('Not authenticated');
+    }
+
+    const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/binance/commission/${tradeAccountId}?api_key=munkhjinbnoo`,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        }
+    );
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to fetch income');
+    }
+
+    return response.json();
+}
+
 export async function getTradeHistory(
   tradeAccountId: string, 
   symbol: string, 
