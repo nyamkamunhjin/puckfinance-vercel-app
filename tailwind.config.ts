@@ -57,6 +57,9 @@ const config: Config = {
         "sidebar-accent-foreground": "var(--sidebar-accent-foreground)",
         "sidebar-border": "var(--sidebar-border)",
         "sidebar-ring": "var(--sidebar-ring)",
+        obsidian: "#050505",
+        "terminal-green": "#00ff9d",
+        "cyber-violet": "#bd00ff",
       },
       borderRadius: {
         sm: "var(--radius-sm)",
@@ -65,8 +68,8 @@ const config: Config = {
         xl: "var(--radius-xl)",
       },
       fontFamily: {
-        sans: ["var(--font-sans)"],
-        mono: ["var(--font-mono)"],
+        sans: ["var(--font-space-grotesk)", "var(--font-geist-sans)"],
+        mono: ["var(--font-jetbrains-mono)", "var(--font-geist-mono)"],
       },
       animation: {
         "shimmer": "shimmer 6s infinite linear",
@@ -83,6 +86,7 @@ const config: Config = {
         "hero-glow": "radial-gradient(circle at 10% 25%, rgba(126, 78, 255, 0.18) 0%, transparent 25%), radial-gradient(circle at 85% 80%, rgba(238, 56, 199, 0.12) 0%, transparent 30%)",
       },
     },
+
   },
   plugins: [],
 };
