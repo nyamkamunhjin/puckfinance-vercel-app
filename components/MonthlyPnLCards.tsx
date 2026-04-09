@@ -2,7 +2,7 @@
 import React, { FC, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getIncome, Income } from "@/lib/binance";
+import { getIncome, Income } from "@/lib/exchange-client";
 import { TradeAccount } from "@/lib/trade-accounts";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
@@ -20,47 +20,46 @@ interface AccountMonthlyPnL {
   error?: string;
 }
 
+// Get current month's start and end timestamps
+const getCurrentMonthRange = () => {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+  
+  return {
+    startTime: startOfMonth.getTime(),
+    endTime: endOfMonth.getTime()
+  };
+};
+
+const calculateMonthlyPnL = (incomeData: Income[]) => {
+  const { startTime, endTime } = getCurrentMonthRange();
+  
+  return incomeData
+    .filter(income => {
+      const incomeTime = income.time;
+      return incomeTime >= startTime && incomeTime <= endTime;
+    })
+    .filter(income => {
+      // Focus on PnL-related income types
+      const pnlIncomeTypes = [
+        'REALIZED_PNL',
+        'FUNDING_FEE',
+        'COMMISSION',
+        'INSURANCE_CLEAR',
+        'REFERRAL_KICKBACK',
+        'COMMISSION_DISCOUNT',
+        'FEE_BURN'
+      ];
+      return pnlIncomeTypes.includes(income.incomeType);
+    })
+    .reduce((total, income) => {
+      return total + parseFloat(income.income);
+    }, 0);
+};
+
 const MonthlyPnLCards: FC<MonthlyPnLCardsProps> = ({ accounts, accessToken }) => {
   const [accountsPnL, setAccountsPnL] = useState<AccountMonthlyPnL[]>([]);
-
-  // Get current month's start and end timestamps
-  const getCurrentMonthRange = () => {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-    
-    return {
-      startTime: startOfMonth.getTime(),
-      endTime: endOfMonth.getTime()
-    };
-  };
-
-  // Calculate monthly PnL from income data
-  const calculateMonthlyPnL = (incomeData: Income[]) => {
-    const { startTime, endTime } = getCurrentMonthRange();
-    
-    return incomeData
-      .filter(income => {
-        const incomeTime = income.time;
-        return incomeTime >= startTime && incomeTime <= endTime;
-      })
-      .filter(income => {
-        // Focus on PnL-related income types
-        const pnlIncomeTypes = [
-          'REALIZED_PNL',
-          'FUNDING_FEE',
-          'COMMISSION',
-          'INSURANCE_CLEAR',
-          'REFERRAL_KICKBACK',
-          'COMMISSION_DISCOUNT',
-          'FEE_BURN'
-        ];
-        return pnlIncomeTypes.includes(income.incomeType);
-      })
-      .reduce((total, income) => {
-        return total + parseFloat(income.income);
-      }, 0);
-  };
 
   // Format currency value
   const formatCurrency = (value: number) => {
@@ -93,7 +92,7 @@ const MonthlyPnLCards: FC<MonthlyPnLCardsProps> = ({ accounts, accessToken }) =>
       const updatedAccountsPnL = await Promise.all(
         accounts.map(async (account) => {
           try {
-            const incomeData = await getIncome(account.id, accessToken);
+            const incomeData = await getIncome(account.id, account.provider, accessToken);
             const monthlyPnL = calculateMonthlyPnL(incomeData);
 
             return {

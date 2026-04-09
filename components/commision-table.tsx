@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
-import { Income, getCommission, getIncome } from "@/lib/binance";
+import { Income, getIncome } from "@/lib/exchange-client";
+import * as binance from "@/lib/binance";
 import { TradeAccount, getTradeAccounts } from "@/lib/trade-accounts";
 import {
   Table,
@@ -62,7 +63,16 @@ export default function CommissionTable({ page = 1, rowsPerPage, onPageChange }:
         const accountsWithIncomeData = await Promise.all(
           accounts.map(async (account) => {
             try {
-              const incomeData = await getCommission(account.id, session.accessToken);
+              let incomeData: Income[];
+              if (account.provider === 'BINANCE') {
+                incomeData = await binance.getCommission(account.id, session.accessToken);
+              } else {
+                const allIncome = await getIncome(account.id, account.provider, session.accessToken);
+                incomeData = allIncome.filter(income => 
+                  income.incomeType === 'COMMISSION' || 
+                  income.type === 6
+                );
+              }
               return { account, incomeData };
             } catch (err) {
               console.error(`Failed to fetch income for account ${account.id}:`, err);

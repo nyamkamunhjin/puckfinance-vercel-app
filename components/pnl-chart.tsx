@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
-import { Income, getIncome } from "@/lib/binance";
+import { Income, getIncome } from "@/lib/exchange-client";
 import { TradeAccount, getTradeAccounts } from "@/lib/trade-accounts";
 import { format } from "date-fns";
 import { CartesianGrid, XAxis, YAxis, AreaChart, Area, Legend, Tooltip, ResponsiveContainer } from "recharts";
@@ -52,7 +52,7 @@ export default function PnlChart({ aggregatedChartData }: PnlChartProps) {
         const accountsWithIncomeData = await Promise.all(
           accounts.map(async (account) => {
             try {
-              const incomeData = await getIncome(account.id, session.accessToken);
+              const incomeData = await getIncome(account.id, account.provider, session.accessToken);
               return { account, incomeData };
             } catch (err) {
               console.error(`Failed to fetch income for account ${account.id}:`, err);

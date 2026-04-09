@@ -8,7 +8,7 @@ import {
 } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { cn } from "@/lib/utils";
-import { Income } from "@/lib/binance";
+import { Income } from "@/lib/exchange-client";
 import { TradeAccount } from "@/lib/trade-accounts";
 
 interface AccountWithIncome {

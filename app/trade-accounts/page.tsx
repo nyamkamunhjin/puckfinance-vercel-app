@@ -9,7 +9,7 @@ import {
 	getTradeAccounts,
 	deleteTradeAccount,
 } from "@/lib/trade-accounts";
-import { Balance, getBalance } from "@/lib/binance";
+import { getBalance } from "@/lib/exchange-client";
 import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,7 @@ export default function TradeAccountsPage() {
 				const accountsWithBalances = await Promise.all(
 					data.map(async (account) => {
 						try {
-							const balance = await getBalance(account.id, session.accessToken);
+							const balance = await getBalance(account.id, account.provider, session.accessToken);
 							return { ...account, balance };
 						} catch (err) {
 							console.error(
