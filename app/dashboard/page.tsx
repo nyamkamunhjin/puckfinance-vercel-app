@@ -6,9 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Balance,
 	getBalance,
-	PositionRisk,
 	getCurrentPosition,
-} from "@/lib/binance";
+	Position,
+} from "@/lib/exchange-client";
 import { TradeAccount, getTradeAccounts } from "@/lib/trade-accounts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -27,7 +27,7 @@ import MonthlyPnLCards from "../../components/MonthlyPnLCards";
 
 interface AccountWithBalance extends TradeAccount {
 	balance?: Balance;
-	positions?: PositionRisk[];
+	positions?: Position[];
 }
 
 /**
@@ -53,13 +53,12 @@ const DashboardPage: FC = () => {
 				const accountsWithData = await Promise.all(
 					data.map(async (account) => {
 						try {
-							const balance = await getBalance(account.id, session.accessToken);
+							const balance = await getBalance(account.id, account.provider, session.accessToken);
 							const positions = await getCurrentPosition(
 								account.id,
+								account.provider,
 								session.accessToken
 							);
-
-							console.log(positions);
 
 							// Filter out positions with zero amount
 							const activePositions = positions.filter(
@@ -115,7 +114,7 @@ const DashboardPage: FC = () => {
 
 	// Get all active positions across all accounts
 	const getAllPositions = () => {
-		const allPositions: Array<{ accountName: string; position: PositionRisk }> =
+		const allPositions: Array<{ accountName: string; position: Position }> =
 			[];
 
 		accounts.forEach((account) => {
@@ -140,6 +139,7 @@ const DashboardPage: FC = () => {
 	// Format currency value
 	const formatCurrency = (value: string) => {
 		const numValue = parseFloat(value);
+		if (isNaN(numValue)) return "—";
 		return numValue.toLocaleString(undefined, {
 			minimumFractionDigits: 2,
 			maximumFractionDigits: 2,
@@ -147,9 +147,9 @@ const DashboardPage: FC = () => {
 	};
 
 	// Calculate position size in USD
-	const getPositionValueUSD = (position: PositionRisk) => {
+	const getPositionValueUSD = (position: Position) => {
 		const positionAmt = parseFloat(position.positionAmt);
-		const positionInitialMargin = parseFloat(position.positionInitialMargin);
+		const positionInitialMargin = parseFloat(position.positionMargin || '0');
 		return Math.abs(positionAmt * positionInitialMargin);
 	};
 
@@ -317,43 +317,51 @@ const DashboardPage: FC = () => {
 													<TableCell className="text-right font-mono">
 														<div className="flex flex-row gap-1 w-full justify-end">
 															<span>
-																{formatCurrency(item.position.stoploss)}
+																{item.position.stoploss ? formatCurrency(item.position.stoploss) : "—"}
 															</span>
-															/
-															<span
-																className={`${
-																	item.position.stoplossAmount > 0
-																		? "text-green-600"
-																		: "text-red-600"
-																}`}
-															>
-																(
-																{formatCurrency(
-																	item.position.stoplossAmount.toFixed(2)
-																)}
-																)
-															</span>
+															{item.position.stoploss ? (
+																<>
+																	/
+																	<span
+																		className={`${
+																			item.position.stoplossAmount > 0
+																				? "text-green-600"
+																				: "text-red-600"
+																		}`}
+																	>
+																		(
+																		{formatCurrency(
+																			item.position.stoplossAmount.toFixed(2)
+																		)}
+																		)
+																	</span>
+																</>
+															) : null}
 														</div>
 													</TableCell>
 													<TableCell className="text-right font-mono">
 														<div className="flex flex-row gap-1 w-full justify-end">
 															<span>
-																{formatCurrency(item.position.takeprofit)}
+																{item.position.takeprofit ? formatCurrency(item.position.takeprofit) : "—"}
 															</span>
-															/
-															<span
-																className={`${
-																	item.position.takeprofitAmount > 0
-																		? "text-green-600"
-																		: "text-red-600"
-																}`}
-															>
-																(
-																{formatCurrency(
-																	item.position.takeprofitAmount.toFixed(2)
-																)}
-																)
-															</span>
+															{item.position.takeprofit ? (
+																<>
+																	/
+																	<span
+																		className={`${
+																			item.position.takeprofitAmount > 0
+																				? "text-green-600"
+																				: "text-red-600"
+																		}`}
+																	>
+																		(
+																		{formatCurrency(
+																			item.position.takeprofitAmount.toFixed(2)
+																		)}
+																		)
+																	</span>
+																</>
+															) : null}
 														</div>
 													</TableCell>
 													<TableCell

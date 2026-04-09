@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AuthGuard } from "@/components/auth-guard";
@@ -17,17 +17,19 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { TradeHistoryItem, getTradeHistory } from "@/lib/binance";
+import { getTradeHistory } from "@/lib/exchange-client";
+import { getTradeAccountById } from "@/lib/trade-accounts";
 
 export default function TradeHistoryPage() {
 	const { id } = useParams();
 	const { data: session } = useSession();
-	const [tradeHistory, setTradeHistory] = useState<TradeHistoryItem[]>([]);
+	const [tradeHistory, setTradeHistory] = useState<any[]>([]);
+	const [provider, setProvider] = useState<"BINANCE" | "BYBIT" | "MEXC" | "OKEX">("BINANCE");
 	const [symbol, setSymbol] = useState("BTCUSDT");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	const fetchTradeHistory = async () => {
+	const fetchTradeHistory = useCallback(async () => {
 		if (!session?.accessToken || !id) return;
 
 		try {
@@ -35,6 +37,7 @@ export default function TradeHistoryPage() {
 			setError(null);
 			const data = await getTradeHistory(
 				id as string,
+				provider,
 				symbol,
 				session.accessToken
 			);
@@ -45,13 +48,13 @@ export default function TradeHistoryPage() {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [session?.accessToken, id, provider, symbol]);
 
 	useEffect(() => {
-		if (session?.accessToken && id) {
+		if (session?.accessToken && id && provider) {
 			fetchTradeHistory();
 		}
-	}, [session, id]);
+	}, [session?.accessToken, id, provider, fetchTradeHistory]);
 
 	const handleSymbolChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSymbol(e.target.value.toUpperCase());

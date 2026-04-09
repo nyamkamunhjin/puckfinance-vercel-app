@@ -12,7 +12,7 @@ declare module "next-auth" {
   }
 }
 
-export type Provider = "BINANCE" | "BYBIT" | "OKEX";
+export type Provider = "BINANCE" | "BYBIT" | "MEXC" | "OKEX";
 
 export interface TradeAccount {
   id: string;

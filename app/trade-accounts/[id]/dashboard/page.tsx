@@ -25,7 +25,8 @@ import {
 	getBalance,
 	getIncome,
 	getSnapshots,
-} from "@/lib/binance";
+} from "@/lib/exchange-client";
+import { getTradeAccountById } from "@/lib/trade-accounts";
 import { CardChart } from "@/components/ui/card-chart";
 import { subDays } from "date-fns";
 import {
@@ -49,6 +50,7 @@ export default function TradeAccountDashboard() {
 	const [balance, setBalance] = useState<Balance | null>(null);
 	const [income, setIncome] = useState<Income[]>([]);
 	const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
+	const [provider, setProvider] = useState<"BINANCE" | "BYBIT" | "MEXC" | "OKEX">("BINANCE");
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [currentPage, setCurrentPage] = useState(1);
@@ -61,25 +63,34 @@ export default function TradeAccountDashboard() {
 				setLoading(true);
 				setError(null);
 
+				// Fetch account details to get provider
+				const account = await getTradeAccountById(id as string, session.accessToken);
+				setProvider(account.provider);
+
 				// Fetch balance data
-				const balanceData = await getBalance(id as string, session.accessToken);
+				const balanceData = await getBalance(id as string, account.provider, session.accessToken);
 				setBalance(balanceData);
 
 				// Fetch income data
-				const incomeData = await getIncome(id as string, session.accessToken);
+				const incomeData = await getIncome(id as string, account.provider, session.accessToken);
 				setIncome(incomeData);
 
-				// Fetch snapshot data for the last 30 days
+				// Fetch snapshot data for last 30 days (only for Binance)
 				const endTime = Date.now();
 				const startTime = subDays(new Date(), 30).getTime();
 
-				const snapshotData = await getSnapshots(
-					id as string,
-					startTime,
-					endTime,
-					session.accessToken
-				);
-				setSnapshots(snapshotData);
+				if (account.provider === "BINANCE") {
+					const snapshotData = await getSnapshots(
+						id as string,
+						account.provider,
+						startTime,
+						endTime,
+						session.accessToken
+					);
+					setSnapshots(snapshotData);
+				} else {
+					setSnapshots([]);
+				}
 			} catch (err: any) {
 				console.error(err);
 				setError(err.message || "Failed to fetch account data");
@@ -166,13 +177,13 @@ export default function TradeAccountDashboard() {
 								</CardHeader>
 								<CardContent>
 									<div className="flex items-center gap-2">
-										<span className="text-sm font-medium border border-gray-400 rounded-md p-2">{`${process.env.NEXT_PUBLIC_API_URL}/api/v1/binance/entry/${id}?api_key=munkhjinbnoo`}</span>
+										<span className="text-sm font-medium border border-gray-400 rounded-md p-2">{`${process.env.NEXT_PUBLIC_API_URL}/api/v1/${provider.toLowerCase()}/entry/${id}?api_key=munkhjinbnoo`}</span>
 										<Button
 											variant="outline"
 											className=""
 											onClick={() =>
 												navigator.clipboard.writeText(
-													`${process.env.NEXT_PUBLIC_API_URL}/api/v1/binance/entry/${id}?api_key=munkhjinbnoo`
+													`${process.env.NEXT_PUBLIC_API_URL}/api/v1/${provider.toLowerCase()}/entry/${id}?api_key=munkhjinbnoo`
 												)
 											}
 										>
