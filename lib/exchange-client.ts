@@ -108,7 +108,7 @@ export async function getBalance(
   accessToken?: string
 ): Promise<Balance> {
   const exchange = getExchangeFunctions(provider);
-  const raw = await exchange.getBalance(tradeAccountId, accessToken);
+  const raw = await exchange.getBalance(tradeAccountId, accessToken) as any;
 
   if (provider === "MEXC") {
     return {
@@ -117,7 +117,6 @@ export async function getBalance(
       availableBalance: String(raw.availableBalance || "0"),
       crossUnPnl: String(raw.unrealized || "0"),
       crossUnrealized: String(raw.unrealized || "0"),
-      ...raw,
     };
   }
 
@@ -130,7 +129,7 @@ export async function getIncome(
   accessToken?: string
 ): Promise<Income[]> {
   const exchange = getExchangeFunctions(provider);
-  const raw = await exchange.getIncome(tradeAccountId, accessToken);
+  const raw = await exchange.getIncome(tradeAccountId, accessToken) as any[];
 
   if (provider === "MEXC") {
     return raw.map((item: any) => ({
@@ -142,7 +141,6 @@ export async function getIncome(
       time: item.createTime || item.updateTime || 0,
       tranId: item.positionId,
       id: String(item.positionId),
-      ...item,
     }));
   }
 
@@ -156,7 +154,7 @@ export async function getTradeHistory(
   accessToken?: string
 ): Promise<any[]> {
   const exchange = getExchangeFunctions(provider);
-  const raw = await exchange.getTradeHistory(tradeAccountId, symbol, accessToken);
+  const raw = await exchange.getTradeHistory(tradeAccountId, symbol, accessToken) as any[];
 
   if (provider === "MEXC") {
     const mexcSideToString = (side: number) => {
@@ -176,7 +174,6 @@ export async function getTradeHistory(
       commissionAsset: "USDT",
       isMaker: item.orderType === 1,
       realizedPnl: String(item.profit || "0"),
-      ...item,
     }));
   }
 
@@ -189,9 +186,9 @@ export async function getCurrentPosition(
   accessToken?: string
 ): Promise<Position[]> {
   const exchange = getExchangeFunctions(provider);
-  const positions = await exchange.getCurrentPosition(tradeAccountId, accessToken);
+  const positions = await exchange.getCurrentPosition(tradeAccountId, accessToken) as any[];
   
-  return positions.map(pos => {
+  return positions.map((pos: any) => {
     const positionAmt = pos.positionAmt || pos.holdVol || pos.volume || '0';
     const isLong = pos.positionType === 1 || parseFloat(String(positionAmt)) > 0;
     const entryPrice = pos.entryPrice || String(pos.holdAvgPrice || pos.averageOpenPrice || '0');
@@ -212,7 +209,6 @@ export async function getCurrentPosition(
       stoplossAmount: pos.stoplossAmount || 0,
       takeprofitAmount: pos.takeprofitAmount || 0,
       side: isLong ? 'LONG' : 'SHORT',
-      ...pos,
     };
   });
 }
@@ -223,7 +219,7 @@ export async function getOpenOrders(
   accessToken?: string
 ): Promise<Order[]> {
   const exchange = getExchangeFunctions(provider);
-  const raw = await exchange.getOpenOrders(tradeAccountId, accessToken);
+  const raw = await exchange.getOpenOrders(tradeAccountId, accessToken) as any[];
 
   if (provider === "MEXC") {
     return raw.map((item: any) => ({
@@ -236,7 +232,6 @@ export async function getOpenOrders(
       type: item.orderType || item.type,
       side: item.side,
       createTime: item.createTime,
-      ...item,
     }));
   }
 
@@ -250,7 +245,7 @@ export async function getSnapshots(
   endTime: number,
   accessToken?: string
 ): Promise<Snapshot[]> {
-  const exchange = getExchangeFunctions(provider);
+  const exchange = getExchangeFunctions(provider) as any;
   if (!exchange.getSnapshots) {
     throw new Error(`Snapshots are not supported for provider ${provider}`);
   }

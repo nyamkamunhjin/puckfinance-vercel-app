@@ -137,7 +137,8 @@ const DashboardPage: FC = () => {
 	};
 
 	// Format currency value
-	const formatCurrency = (value: string) => {
+	const formatCurrency = (value: string | undefined) => {
+		if (!value) return "—";
 		const numValue = parseFloat(value);
 		if (isNaN(numValue)) return "—";
 		return numValue.toLocaleString(undefined, {

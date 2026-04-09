@@ -1,5 +1,5 @@
 import React, { FC, useMemo } from 'react';
-import { Income } from '@/lib/binance';
+import { Income } from '@/lib/exchange-client';
 import { CartesianGrid, Line, LineChart, XAxis, YAxis, AreaChart, Area } from 'recharts';
 
 import {

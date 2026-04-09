@@ -51,7 +51,7 @@ const calculateMonthlyPnL = (incomeData: Income[]) => {
         'COMMISSION_DISCOUNT',
         'FEE_BURN'
       ];
-      return pnlIncomeTypes.includes(income.incomeType);
+      return !!income.incomeType && pnlIncomeTypes.includes(income.incomeType);
     })
     .reduce((total, income) => {
       return total + parseFloat(income.income);
