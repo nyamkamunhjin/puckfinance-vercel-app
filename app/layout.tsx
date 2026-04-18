@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
-import { AppHeader } from "../components/app-header";
+import { AppHeader } from "@/components/app-header";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -30,12 +30,12 @@ export const metadata: Metadata = {
 		"Connect TradingView strategies to exchanges, manage your crypto trading portfolio, and monitor performance all in one powerful platform.",
 };
 
-export default function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
-	return (
+	export default function RootLayout({
+		children,
+	}: Readonly<{
+		children: React.ReactNode;
+	}>) {
+		return (
 		<html lang="en">
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased`}
@@ -48,5 +48,5 @@ export default function RootLayout({
 				</AuthProvider>
 			</body>
 		</html>
-	);
-}
+		);
+	}

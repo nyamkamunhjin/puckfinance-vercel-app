@@ -29,6 +29,8 @@ export function AppHeader() {
   const isAuthenticated = !!session;
   const [open, setOpen] = useState(false);
 
+  if (pathname === "/") return null;
+
   // Filter nav items based on authentication status
   const visibleNavItems = navItems.filter(item => !item.requiresAuth || isAuthenticated);
 
