@@ -15,18 +15,13 @@ export function AuthNav() {
 
   if (session) {
     return (
-      <div className="flex items-center gap-2 sm:gap-4">
-        <span className="hidden sm:inline text-sm font-medium truncate max-w-[120px] md:max-w-[200px]">
-          {session.user?.email}
-        </span>
-        <Button 
-          variant="default" 
-          size="sm" 
-          onClick={() => signOut({ callbackUrl: "/" })}
-        >
-          Sign out
-        </Button>
-      </div>
+      <Button 
+        variant="default" 
+        size="sm" 
+        onClick={() => signOut({ callbackUrl: "/" })}
+      >
+        Sign out
+      </Button>
     );
   }
 
