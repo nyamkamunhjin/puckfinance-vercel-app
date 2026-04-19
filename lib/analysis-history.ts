@@ -113,6 +113,25 @@ export async function getAnalysisById(
   return res.json();
 }
 
+export interface TradeResult {
+  success: boolean;
+  result: "WIN" | "LOSS" | "PENDING" | "NO_TRADE";
+  direction: string | null;
+  entryPrice: number | null;
+  stopLoss: number | null;
+  takeProfit: number | null;
+  hitAt: string | null;
+  currentPrice: number | null;
+}
+
+export async function getTradeResult(
+  id: string
+): Promise<TradeResult> {
+  const res = await fetch(`${API_URL}/api/v1/analysis-history/${id}/trade-result`);
+  if (!res.ok) throw new Error(`Failed to check trade result: ${res.status}`);
+  return res.json();
+}
+
 /**
  * Delete an analysis by ID
  */

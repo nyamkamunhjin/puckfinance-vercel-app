@@ -12,8 +12,10 @@ import {
   getAnalysisHistory,
   getAnalysisById,
   deleteAnalysis,
+  getTradeResult,
   type AnalysisListItem,
   type AnalysisDetail,
+  type TradeResult as TradeResultType,
 } from "@/lib/analysis-history";
 import {
   History,
@@ -34,6 +36,10 @@ import {
   Calendar,
   X,
   CandlestickChart,
+  Target,
+  CheckCircle2,
+  XCircle,
+  Clock,
 } from "lucide-react";
 import { TradeChart } from "@/components/analysis/trade-chart";
 
@@ -107,6 +113,40 @@ function formatDate(dateStr: string): string {
   });
 }
 
+function TradeResultBadge({ result }: { result: TradeResultType | null }) {
+  if (!result || result.result === "NO_TRADE") return null;
+
+  const config: Record<string, { icon: React.ReactNode; bg: string; text: string; label: string }> = {
+    WIN: {
+      icon: <CheckCircle2 className="h-3.5 w-3.5" />,
+      bg: "bg-green-500/10 border-green-500/20",
+      text: "text-green-500",
+      label: "TP Hit",
+    },
+    LOSS: {
+      icon: <XCircle className="h-3.5 w-3.5" />,
+      bg: "bg-red-500/10 border-red-500/20",
+      text: "text-red-500",
+      label: "SL Hit",
+    },
+    PENDING: {
+      icon: <Clock className="h-3.5 w-3.5" />,
+      bg: "bg-yellow-500/10 border-yellow-500/20",
+      text: "text-yellow-500",
+      label: "Pending",
+    },
+  };
+
+  const c = config[result.result];
+  if (!c) return null;
+
+  return (
+    <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${c.bg} ${c.text}`}>
+      {c.icon} {c.label}
+    </span>
+  );
+}
+
 const mdComponents: Record<string, React.FC<React.PropsWithChildren<any>>> = {
   h1: ({ children }) => (
     <h1 className="text-2xl font-bold text-foreground mt-8 mb-4 first:mt-0">{children}</h1>
@@ -163,6 +203,8 @@ export default function AnalysisHistoryPage() {
   const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisDetail | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [tradeResults, setTradeResults] = useState<Record<string, TradeResultType>>({});
+  const [checkingTrades, setCheckingTrades] = useState<Record<string, boolean>>({});
 
   const fetchHistory = useCallback(async (p: number, sym: string) => {
     try {
@@ -216,6 +258,17 @@ export default function AnalysisHistoryPage() {
   const handleSymbolChange = (sym: string) => {
     setSymbolFilter(sym);
     setPage(1);
+  };
+
+  const handleCheckTrade = async (id: string) => {
+    try {
+      setCheckingTrades((prev) => ({ ...prev, [id]: true }));
+      const result = await getTradeResult(id);
+      setTradeResults((prev) => ({ ...prev, [id]: result }));
+    } catch {
+    } finally {
+      setCheckingTrades((prev) => ({ ...prev, [id]: false }));
+    }
   };
 
   // Detail modal
@@ -356,6 +409,22 @@ export default function AnalysisHistoryPage() {
                 <CardTitle className="flex items-center gap-2">
                   <Anchor className="h-5 w-5" />
                   Trade Alert — {d.tradeAlertDirection}
+                  <div className="ml-auto">
+                    {tradeResults[d.id] ? (
+                      <TradeResultBadge result={tradeResults[d.id]} />
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleCheckTrade(d.id)}
+                        disabled={checkingTrades[d.id]}
+                        className="gap-1.5"
+                      >
+                        {checkingTrades[d.id] ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Target className="h-3.5 w-3.5" />}
+                        Check Trade Result
+                      </Button>
+                    )}
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -385,6 +454,29 @@ export default function AnalysisHistoryPage() {
                     </div>
                   )}
                 </div>
+                {tradeResults[d.id] && tradeResults[d.id].result !== "NO_TRADE" && tradeResults[d.id].hitAt && (
+                  <div className={`mt-3 p-3 rounded-lg border ${
+                    tradeResults[d.id].result === "WIN"
+                      ? "bg-green-500/5 border-green-500/20"
+                      : tradeResults[d.id].result === "LOSS"
+                      ? "bg-red-500/5 border-red-500/20"
+                      : "bg-yellow-500/5 border-yellow-500/20"
+                  }`}>
+                    <p className={`text-sm font-medium ${
+                      tradeResults[d.id].result === "WIN" ? "text-green-500" : tradeResults[d.id].result === "LOSS" ? "text-red-500" : "text-yellow-500"
+                    }`}>
+                      {tradeResults[d.id].result === "WIN" && "Take Profit was hit"}
+                      {tradeResults[d.id].result === "LOSS" && "Stop Loss was hit"}
+                      {tradeResults[d.id].result === "PENDING" && "Neither TP nor SL hit yet"}
+                      {tradeResults[d.id].hitAt && ` — ${formatDate(tradeResults[d.id].hitAt!)}`}
+                    </p>
+                    {tradeResults[d.id].currentPrice && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Current price: ${formatUSD(tradeResults[d.id].currentPrice!)}
+                      </p>
+                    )}
+                  </div>
+                )}
                 {d.tradeAlertSetup && (
                   <p className="mt-3 text-sm text-muted-foreground"><strong>Setup:</strong> {d.tradeAlertSetup}</p>
                 )}
@@ -421,7 +513,7 @@ export default function AnalysisHistoryPage() {
                   tradeAlert: d.tradeAlertActive
                     ? {
                         active: true,
-                        direction: d.tradeAlertDirection || "NONE",
+                        direction: (d.tradeAlertDirection || "NONE") as "LONG" | "SHORT" | "NONE",
                         entryPrice: d.tradeAlertEntryPrice,
                         stopLoss: d.tradeAlertStopLoss,
                         takeProfit: d.tradeAlertTakeProfit,
@@ -576,13 +668,27 @@ export default function AnalysisHistoryPage() {
                       <p className="font-semibold capitalize">{(a.emaTrend || "").replace(/_/g, " ")}</p>
                     </div>
                   </div>
-                  {/* Trade Alert indicator */}
+                  {/* Trade Alert indicator + Result */}
                   {a.tradeAlertActive && (
-                    <div className={`text-xs px-2 py-1 rounded-md border ${getVerdictBg(a.tradeAlertDirection === "LONG" ? "BUY" : "SELL")}`}>
-                      <span className="font-medium">Trade Alert:</span>{" "}
-                      <span className={getVerdictColor(a.tradeAlertDirection === "LONG" ? "BUY" : "SELL")}>
-                        {a.tradeAlertDirection}
-                      </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div className={`text-xs px-2 py-1 rounded-md border ${getVerdictBg(a.tradeAlertDirection === "LONG" ? "BUY" : "SELL")}`}>
+                        <span className="font-medium">Trade Alert:</span>{" "}
+                        <span className={getVerdictColor(a.tradeAlertDirection === "LONG" ? "BUY" : "SELL")}>
+                          {a.tradeAlertDirection}
+                        </span>
+                      </div>
+                      {tradeResults[a.id] ? (
+                        <TradeResultBadge result={tradeResults[a.id]} />
+                      ) : (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleCheckTrade(a.id); }}
+                          disabled={checkingTrades[a.id]}
+                          className="text-xs px-2 py-1 rounded-md border border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 transition-colors inline-flex items-center gap-1 disabled:opacity-50"
+                        >
+                          {checkingTrades[a.id] ? <Loader2 className="h-3 w-3 animate-spin" /> : <Target className="h-3 w-3" />}
+                          Check Result
+                        </button>
+                      )}
                     </div>
                   )}
                   <div className="flex justify-end">
