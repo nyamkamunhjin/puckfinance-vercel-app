@@ -42,6 +42,7 @@ import {
   Clock,
 } from "lucide-react";
 import { TradeChart } from "@/components/analysis/trade-chart";
+import { TradeExecutor } from "@/components/analysis/trade-executor";
 
 const SYMBOLS = [
   { value: "", label: "All" },
@@ -487,46 +488,63 @@ export default function AnalysisHistoryPage() {
             </Card>
           )}
 
-          {/* Price Chart */}
-          <Card className="bg-background/60 backdrop-blur-sm border-primary/10">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CandlestickChart className="h-5 w-5 text-primary" />
-                {d.symbol}/USDT Chart
-                {d.tradeAlertActive && d.tradeAlertDirection && d.tradeAlertDirection !== "NONE" && (
-                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
-                    d.tradeAlertDirection === "LONG"
-                      ? "bg-green-500/15 text-green-500 border border-green-500/20"
-                      : "bg-red-500/15 text-red-500 border border-red-500/20"
-                  }`}>
-                    {d.tradeAlertDirection === "LONG" ? "\uD83D\uDFE2" : "\uD83D\uDD34"} {d.tradeAlertDirection}
-                  </span>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <TradeChart
-                marketData={{
-                  price: d.price,
-                  keySupport: d.keySupport,
-                  keyResistance: d.keyResistance,
-                  tradeAlert: d.tradeAlertActive
-                    ? {
-                        active: true,
-                        direction: (d.tradeAlertDirection || "NONE") as "LONG" | "SHORT" | "NONE",
-                        entryPrice: d.tradeAlertEntryPrice,
-                        stopLoss: d.tradeAlertStopLoss,
-                        takeProfit: d.tradeAlertTakeProfit,
-                        riskRewardRatio: d.tradeAlertRiskReward,
-                        tradeSetup: d.tradeAlertSetup || "",
-                        reasoning: d.tradeAlertReasoning || "",
-                      }
-                    : undefined,
-                }}
-                selectedSymbol={d.symbol}
-              />
-            </CardContent>
-          </Card>
+          {/* Price Chart + Quick Trade */}
+          <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+            <Card className="bg-background/60 backdrop-blur-sm border-primary/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CandlestickChart className="h-5 w-5 text-primary" />
+                  {d.symbol}/USDT Chart
+                  {d.tradeAlertActive && d.tradeAlertDirection && d.tradeAlertDirection !== "NONE" && (
+                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                      d.tradeAlertDirection === "LONG"
+                        ? "bg-green-500/15 text-green-500 border border-green-500/20"
+                        : "bg-red-500/15 text-red-500 border border-red-500/20"
+                    }`}>
+                      {d.tradeAlertDirection === "LONG" ? "\uD83D\uDFE2" : "\uD83D\uDD34"} {d.tradeAlertDirection}
+                    </span>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TradeChart
+                  marketData={{
+                    price: d.price,
+                    keySupport: d.keySupport,
+                    keyResistance: d.keyResistance,
+                    tradeAlert: d.tradeAlertActive
+                      ? {
+                          active: true,
+                          direction: (d.tradeAlertDirection || "NONE") as "LONG" | "SHORT" | "NONE",
+                          entryPrice: d.tradeAlertEntryPrice,
+                          stopLoss: d.tradeAlertStopLoss,
+                          takeProfit: d.tradeAlertTakeProfit,
+                          riskRewardRatio: d.tradeAlertRiskReward,
+                          tradeSetup: d.tradeAlertSetup || "",
+                          reasoning: d.tradeAlertReasoning || "",
+                        }
+                      : undefined,
+                  }}
+                  selectedSymbol={d.symbol}
+                />
+              </CardContent>
+            </Card>
+            <TradeExecutor
+              symbol={d.symbol}
+              tradeAlert={
+                d.tradeAlertActive && d.tradeAlertEntryPrice && d.tradeAlertStopLoss && d.tradeAlertTakeProfit
+                  ? {
+                      active: true,
+                      direction: (d.tradeAlertDirection || "NONE") as "LONG" | "SHORT" | "NONE",
+                      entryPrice: d.tradeAlertEntryPrice,
+                      stopLoss: d.tradeAlertStopLoss,
+                      takeProfit: d.tradeAlertTakeProfit,
+                      riskRewardRatio: d.tradeAlertRiskReward,
+                    }
+                  : undefined
+              }
+            />
+          </div>
 
           {/* AI Analysis Text */}
           {d.analysisText && (
