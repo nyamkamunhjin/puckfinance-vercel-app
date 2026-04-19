@@ -20,7 +20,9 @@ import {
   DollarSign,
   Calendar,
   Anchor,
+  CandlestickChart,
 } from "lucide-react";
+import { TradeChart } from "@/components/analysis/trade-chart";
 
 const SYMBOLS = [
   { value: "BTC", label: "Bitcoin", short: "BTC" },
@@ -88,6 +90,16 @@ interface MarketData {
     fvgCount: number;
     obCount: number;
     conflictingSignals: string[];
+  };
+  tradeAlert?: {
+    active: boolean;
+    direction: "LONG" | "SHORT" | "NONE";
+    entryPrice: number | null;
+    stopLoss: number | null;
+    takeProfit: number | null;
+    riskRewardRatio: number | null;
+    tradeSetup: string;
+    reasoning: string;
   };
 }
 
@@ -229,6 +241,8 @@ export default function CryptoAnalysisPage() {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [tradeAlert, setTradeAlert] = useState<MarketData["tradeAlert"]>(undefined);
+  const [streamingDone, setStreamingDone] = useState(false);
 
   const startAnalysis = useCallback(
     async (symbol?: string) => {
@@ -246,6 +260,8 @@ export default function CryptoAnalysisPage() {
       setStreamedText("");
       setMarketData(null);
       setError(null);
+      setTradeAlert(undefined);
+      setStreamingDone(false);
 
       try {
         const response = await fetch(
@@ -285,6 +301,8 @@ export default function CryptoAnalysisPage() {
                 setIsLoadingData(false);
               } else if (event.type === "text-delta") {
                 setStreamedText((prev) => prev + event.data);
+              } else if (event.type === "trade-alert") {
+                setTradeAlert(event.data);
               } else if (event.type === "error") {
                 setError(event.data);
               }
@@ -300,6 +318,7 @@ export default function CryptoAnalysisPage() {
       } finally {
         setIsStreaming(false);
         setIsLoadingData(false);
+        setStreamingDone(true);
       }
     },
     [selectedSymbol]
@@ -751,6 +770,39 @@ export default function CryptoAnalysisPage() {
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {/* Price Chart - only renders after streaming completes */}
+        {marketData && streamingDone && (
+          <Card className="bg-background/60 backdrop-blur-sm border-primary/10 hover:shadow-md hover:border-primary/20 transition-all">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CandlestickChart className="h-5 w-5 text-primary" />
+                  {selectedSymbol}/USDT Chart
+                </div>
+                {tradeAlert?.active && tradeAlert.direction !== "NONE" && (
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                      tradeAlert.direction === "LONG"
+                        ? "bg-green-500/15 text-green-500 border border-green-500/20"
+                        : "bg-red-500/15 text-red-500 border border-red-500/20"
+                    }`}>
+                      {tradeAlert.direction === "LONG" ? "\uD83D\uDFE2" : "\uD83D\uDD34"} {tradeAlert.direction}
+                    </span>
+                    {tradeAlert.riskRewardRatio && (
+                      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                        R:R {tradeAlert.riskRewardRatio}:1
+                      </span>
+                    )}
+                  </div>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TradeChart marketData={{ ...marketData, tradeAlert }} selectedSymbol={selectedSymbol} />
+            </CardContent>
+          </Card>
         )}
 
         {/* AI Analysis Stream */}
