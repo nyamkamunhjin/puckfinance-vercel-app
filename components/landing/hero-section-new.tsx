@@ -2,13 +2,13 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { ArrowRight, ChevronRight, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AnimatedGroup } from '@/components/ui/animated-group';
 import { AuthNav } from '@/components/auth-nav';
+import { LandingChartPreview } from '@/components/landing/chart-preview';
 import { cn } from '@/lib/utils';
 
 const transitionVariants = {
@@ -41,39 +41,6 @@ export function HeroSection() {
                 </div>
                 <section aria-labelledby="hero-heading">
                     <div className="relative pt-24 md:pt-36">
-                        <AnimatedGroup
-                            variants={{
-                                container: {
-                                    hidden: { opacity: 0 },
-                                    visible: {
-                                        opacity: 1,
-                                        transition: {
-                                            delayChildren: 1,
-                                        },
-                                    },
-                                },
-                                item: {
-                                    hidden: {
-                                        opacity: 0,
-                                        y: 20,
-                                    },
-                                    visible: {
-                                        opacity: 1,
-                                        y: 0,
-                                    },
-                                },
-                            }}
-                            className="absolute inset-0 -z-20"
-                        >
-                            <Image
-                                src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=3000&auto=format&fit=crop"
-                                alt="Cryptocurrency trading dashboard with charts and market data"
-                                className="absolute inset-x-0 top-56 -z-20 hidden lg:top-32 dark:block object-cover"
-                                width={3276}
-                                height={4095}
-                                priority
-                            />
-                        </AnimatedGroup>
                         <div
                             aria-hidden="true"
                             className="absolute inset-0 -z-10 size-full [background:radial-gradient(125%_125%_at_50%_100%,transparent_0%,var(--background)_75%)]"
@@ -148,23 +115,8 @@ export function HeroSection() {
                                     aria-hidden="true"
                                     className="bg-gradient-to-b to-background absolute inset-0 z-10 from-transparent from-35%"
                                 />
-                                <div className="inset-shadow-2xs ring-background dark:inset-shadow-white/20 bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl border p-4 shadow-lg shadow-zinc-950/15 ring-1">
-                                    <Image
-                                        className="bg-background aspect-15/8 relative hidden rounded-2xl dark:block"
-                                        src="https://images.unsplash.com/photo-1518546305927-5a555bb7020d?q=80&w=3000&auto=format&fit=crop"
-                                        alt="PuckFinance trading dashboard showing cryptocurrency charts, portfolio balances, and trading interface"
-                                        width={2700}
-                                        height={1440}
-                                        priority
-                                    />
-                                    <Image
-                                        className="z-2 border-border/25 aspect-15/8 relative rounded-2xl border dark:hidden"
-                                        src="https://images.unsplash.com/photo-1518186285589-2f7649de83e0?q=80&w=3000&auto=format&fit=crop"
-                                        alt="PuckFinance trading dashboard showing cryptocurrency charts, portfolio balances, and trading interface in light mode"
-                                        width={2700}
-                                        height={1440}
-                                        priority
-                                    />
+                                <div className="mx-auto max-w-5xl px-4">
+                                    <LandingChartPreview />
                                 </div>
                             </div>
                         </AnimatedGroup>
