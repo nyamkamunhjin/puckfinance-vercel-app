@@ -198,7 +198,7 @@ export async function getCurrentPosition(
       positionAmt: String(positionAmt),
       entryPrice,
       markPrice: pos.markPrice || '0',
-      unrealizedProfit: pos.unrealizedProfit || String(pos.unrealized || pos.realised || '0'),
+      unrealizedProfit: pos.unrealizedProfit != null ? String(pos.unrealizedProfit) : String(pos.unrealized || pos.realised || '0'),
       unrealizedProfitUsd: pos.unrealizedProfitUsd,
       liquidationPrice: pos.liquidationPrice || String(pos.liquidatePrice || '0'),
       leverage: String(pos.leverage),
